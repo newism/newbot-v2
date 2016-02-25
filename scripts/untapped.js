@@ -116,7 +116,7 @@ module.exports = function (robot) {
         ratings.push(msgText);
       }
 
-      msg.reply(ratings.join("\n"));
+      msg.send(ratings.join("\n"));
     });
   });
 };
