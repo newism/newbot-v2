@@ -32,17 +32,28 @@ module.exports = function (robot) {
     }
     endpoint = url + "/search/beer?client_id=" + clientId + "&client_secret=" + clientSecret + "&q=" + query;
     return robot.http(endpoint).get()(function (err, res, body) {
-      var beer, beers, brewery, item, msgText, response;
+
+      var body, beer, beers, brewery, item, msgText, response;
+
       console.log(endpoint);
+
       if (err) {
-        msg.reply("Im'd drunk :( " + err);
-        return;
+        return msg.send("Im'd drunk :( " + err);
       }
-      response = JSON.parse(body).response || false;
-      beers = response.beers;
+
+      body = JSON.parse(body);
+
+      if(body && body.meta.code == 500) {
+        return msg.send("Error: " + body.meta.error_detail);
+      }
+
+      response = body.response || false;
+      beers = response.beers || [];
+
       if (beers.count == 0) {
         return msg.reply("No beer found matching: " + query);
       }
+
       item = msg.random(beers.items);
       beer = item.beer;
       brewery = item.brewery;
@@ -62,7 +73,7 @@ module.exports = function (robot) {
           msgText += " - " + brewery.contact.url;
         }
       }
-      msg.reply(msgText);
+      msg.send(msgText);
       if (beer.beer_label && beer.beer_label != "https://untappd.s3.amazonaws.com/site/assets/images/temp/badge-beer-default.png") {
         msg.send(beer.beer_label);
       }
@@ -72,19 +83,24 @@ module.exports = function (robot) {
     var endpoint, query;
     query = msg.match[3];
     if (!query) {
-      msg.reply("Can I have a clue whose feed you want to see? Try 'untapped me checkins leevigraham'");
-      return;
+      return msg.reply("Can I have a clue whose feed you want to see? Try 'untapped me checkins leevigraham'");
     }
     endpoint = url + "/user/checkins/" + query + "?client_id=" + clientId + "&client_secret=" + clientSecret + "&limit=5";
     return robot.http(endpoint).get()(function (err, res, body) {
       var beer, brewery, checkins, item, msgText, rating_score, response, ratings = [];
       console.log(endpoint);
       if (err) {
-        msg.reply("Im'd drunk :( " + err);
-        return;
+        return msg.reply("Im'd drunk :( " + err);
       }
-      response = JSON.parse(body).response || false;
-      checkins = response.checkins;
+      body = JSON.parse(body);
+
+      if(body && body.meta.code == 500) {
+        return msg.send("Error: " + body.meta.error_detail);
+      }
+
+      response = body.response || false;
+      checkins = response.checkins || [];
+
       if (checkins.count == 0) {
         return msg.reply("No checkins for: " + query);
       }
@@ -108,9 +124,6 @@ module.exports = function (robot) {
 
         if (brewery) {
           msgText += " " + brewery.brewery_name;
-          if (brewery.contact && brewery.contact.url) {
-            msgText += " - " + brewery.contact.url;
-          }
         }
 
         ratings.push(msgText);
