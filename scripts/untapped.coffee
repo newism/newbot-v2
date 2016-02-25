@@ -17,7 +17,7 @@
 clientId = process.env.HUBOT_UNTAPPED_CLIENT_ID
 clientSecret = process.env.HUBOT_UNTAPPED_CLIENT_SECRET
 
-url = "http://api.untappd.com/v4"
+url = "https://api.untappd.com/v4"
 
 module.exports = (robot) ->
   robot.respond /(untapped|ut)( me)? (.*)/i, (msg) ->
