@@ -8,7 +8,13 @@
 # Author:
 #   leevigraham
 
+
+yeeha = [
+  "https://i.imgur.com/2pqWmsF.gif"
+]
+
+
 module.exports = (robot) ->
 
   robot.hear /(ye+ha+|aw+yeah)/i, (msg) ->
-    msg.send "https://i.imgur.com/2pqWmsF.gif"
+    msg.send msg.random yeeha
